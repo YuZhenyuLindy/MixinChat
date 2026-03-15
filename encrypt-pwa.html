@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="密信聊天">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0f0f23">
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoi5a+G5L+h6IGK5aSpIiwic2hvcnRfbmFtZSI6IuWvhuS/oeiBiuWkqSIsInN0YXJ0X3VybCI6Ii4vZW5jcnlwdC1wd2EuaHRtbCIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiMwZjBmMjMiLCJ0aGVtZV9jb2xvciI6IiMwZjBmMjMifQo=">
+<title>密信聊天</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #0f0f23;
+    color: #e0e0e0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    padding-top: max(20px, env(safe-area-inset-top));
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+  }
+  .container { max-width: 500px; width: 100%; }
+  h1 { text-align: center; margin: 12px 0 6px; font-size: 26px; color: #7ec8e3; }
+  .subtitle { text-align: center; color: #888; font-size: 12px; margin-bottom: 20px; }
+  .key-section {
+    background: #1a1a2e;
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 12px;
+    border: 1px solid #2a2a4a;
+  }
+  .key-section label { font-size: 12px; color: #aaa; display: block; margin-bottom: 6px; }
+  .key-row { display: flex; gap: 6px; }
+  .key-row input {
+    flex: 1;
+    background: #0f0f23;
+    border: 1px solid #3a3a5a;
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: #e0e0e0;
+    font-size: 16px;
+    min-width: 0;
+  }
+  .key-row button {
+    background: #2a2a4a;
+    border: none;
+    border-radius: 8px;
+    color: #7ec8e3;
+    padding: 0 12px;
+    cursor: pointer;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  .key-row button:active { opacity: 0.6; }
+  .save-key {
+    display: flex; align-items: center; gap: 6px;
+    margin-top: 8px; font-size: 12px; color: #888;
+  }
+  .save-key input[type="checkbox"] { width: 16px; height: 16px; accent-color: #7ec8e3; }
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: #1a1a2e;
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 12px;
+  }
+  .tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 15px;
+    transition: all 0.2s;
+    border: none;
+    background: transparent;
+    color: #888;
+  }
+  .tab:active { opacity: 0.6; }
+  .tab.active { background: #7ec8e3; color: #0f0f23; font-weight: 600; }
+  .panel {
+    background: #1a1a2e;
+    border-radius: 12px;
+    padding: 14px;
+    border: 1px solid #2a2a4a;
+  }
+  textarea {
+    width: 100%;
+    background: #0f0f23;
+    border: 1px solid #3a3a5a;
+    border-radius: 8px;
+    padding: 12px;
+    color: #e0e0e0;
+    font-size: 16px;
+    resize: none;
+    min-height: 90px;
+    font-family: inherit;
+    line-height: 1.5;
+  }
+  textarea:focus, input:focus { outline: none; border-color: #7ec8e3; }
+  .action-btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin: 10px 0;
+    transition: opacity 0.2s;
+  }
+  .action-btn:active { opacity: 0.6; }
+  .btn-encrypt { background: #7ec8e3; color: #0f0f23; }
+  .btn-decrypt { background: #e37e7e; color: #0f0f23; }
+  .result-area { margin-top: 8px; position: relative; }
+  .result-area textarea { color: #7ec8e3; }
+  .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #2a2a4a;
+    border: none;
+    border-radius: 6px;
+    color: #7ec8e3;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .copy-btn:active { opacity: 0.6; }
+  .toast {
+    position: fixed;
+    top: max(20px, env(safe-area-inset-top));
+    left: 50%;
+    transform: translateX(-50%) translateY(-100px);
+    background: #333;
+    color: #fff;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: transform 0.3s;
+    z-index: 100;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .hint { font-size: 11px; color: #555; margin-top: 10px; text-align: center; }
+  .install-hint {
+    text-align: center;
+    font-size: 12px;
+    color: #666;
+    margin-top: 12px;
+    padding: 10px;
+    background: #1a1a2e;
+    border-radius: 10px;
+    border: 1px dashed #2a2a4a;
+    display: none;
+  }
+  .install-hint.show { display: block; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🔐 密信聊天</h1>
+  <p class="subtitle">本地加密，离线可用，消息只有你们看得懂</p>
+
+  <div class="key-section">
+    <label>共享密钥（和对方约定同一个）</label>
+    <div class="key-row">
+      <input type="password" id="key" placeholder="输入你们的密钥..." />
+      <button onclick="toggleKey()">👁</button>
+      <button onclick="generateKey()">随机</button>
+    </div>
+    <label class="save-key">
+      <input type="checkbox" id="save-key-check" onchange="onSaveKeyToggle()" />
+      记住密钥（存在本机，方便下次使用）
+    </label>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('encrypt')">加密发送</button>
+    <button class="tab" onclick="switchTab('decrypt')">解密查看</button>
+  </div>
+
+  <div id="encrypt-panel" class="panel">
+    <textarea id="plain-text" placeholder="输入要加密的消息..."></textarea>
+    <button class="action-btn btn-encrypt" onclick="doEncrypt()">加密并复制</button>
+    <div class="result-area">
+      <textarea id="cipher-output" placeholder="加密结果会显示在这里，复制后发到微信" readonly></textarea>
+      <button class="copy-btn" onclick="copyText('cipher-output')">复制</button>
+    </div>
+  </div>
+
+  <div id="decrypt-panel" class="panel" style="display:none;">
+    <textarea id="cipher-text" placeholder="粘贴收到的加密消息，将自动解密..." oninput="autoDecrypt()"></textarea>
+    <button class="action-btn btn-decrypt" onclick="doDecrypt()">解密</button>
+    <div class="result-area">
+      <textarea id="plain-output" placeholder="解密后的消息会显示在这里" readonly></textarea>
+      <button class="copy-btn" onclick="copyText('plain-output')">复制</button>
+    </div>
+  </div>
+
+  <p class="hint">所有加密解密均在本地完成，不经过任何服务器</p>
+
+  <div class="install-hint" id="install-hint">
+    📱 长按分享 → 「添加到主屏幕」，即可像 App 一样使用
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// === Toast ===
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+// === Key management ===
+function toggleKey() {
+  const k = document.getElementById('key');
+  k.type = k.type === 'password' ? 'text' : 'password';
+}
+
+function generateKey() {
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+  let key = '';
+  const arr = new Uint8Array(16);
+  crypto.getRandomValues(arr);
+  for (const b of arr) key += chars[b % chars.length];
+  document.getElementById('key').value = key;
+  document.getElementById('key').type = 'text';
+  saveKeyIfNeeded();
+  showToast('已生成随机密钥，请线下告知对方');
+}
+
+function onSaveKeyToggle() {
+  const checked = document.getElementById('save-key-check').checked;
+  if (checked) {
+    saveKeyIfNeeded();
+  } else {
+    localStorage.removeItem('mixin_key');
+    localStorage.removeItem('mixin_save');
+  }
+}
+
+function saveKeyIfNeeded() {
+  if (document.getElementById('save-key-check').checked) {
+    const key = document.getElementById('key').value.trim();
+    if (key) localStorage.setItem('mixin_key', key);
+    localStorage.setItem('mixin_save', '1');
+  }
+}
+
+function loadSavedKey() {
+  if (localStorage.getItem('mixin_save') === '1') {
+    document.getElementById('save-key-check').checked = true;
+    const saved = localStorage.getItem('mixin_key');
+    if (saved) document.getElementById('key').value = saved;
+  }
+}
+
+// Save key on every change
+document.addEventListener('DOMContentLoaded', () => {
+  loadSavedKey();
+  document.getElementById('key').addEventListener('input', saveKeyIfNeeded);
+});
+
+// === Tab switching ===
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', (tab === 'encrypt' ? i === 0 : i === 1));
+  });
+  document.getElementById('encrypt-panel').style.display = tab === 'encrypt' ? 'block' : 'none';
+  document.getElementById('decrypt-panel').style.display = tab === 'decrypt' ? 'block' : 'none';
+}
+
+// === Crypto (AES-256-CBC + HMAC-SHA256, compatible with mini program) ===
+// Format: salt(16) + iv(16) + hmac(32) + ciphertext
+
+async function deriveKeys(password, salt) {
+  const enc = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits(
+    { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+    keyMaterial, 512
+  );
+  const aesKey = await crypto.subtle.importKey('raw', bits.slice(0, 32), { name: 'AES-CBC' }, false, ['encrypt', 'decrypt']);
+  const hmacKey = await crypto.subtle.importKey('raw', bits.slice(32, 64), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign', 'verify']);
+  return { aesKey, hmacKey };
+}
+
+async function doEncrypt() {
+  const key = document.getElementById('key').value.trim();
+  const text = document.getElementById('plain-text').value.trim();
+  if (!key) return showToast('请先输入密钥');
+  if (!text) return showToast('请输入要加密的消息');
+
+  try {
+    const enc = new TextEncoder();
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(16));
+    const { aesKey, hmacKey } = await deriveKeys(key, salt);
+    const encrypted = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-CBC', iv }, aesKey, enc.encode(text)));
+
+    const toMac = new Uint8Array(16 + 16 + encrypted.length);
+    toMac.set(salt, 0);
+    toMac.set(iv, 16);
+    toMac.set(encrypted, 32);
+    const mac = new Uint8Array(await crypto.subtle.sign('HMAC', hmacKey, toMac));
+
+    const combined = new Uint8Array(16 + 16 + 32 + encrypted.length);
+    combined.set(salt, 0);
+    combined.set(iv, 16);
+    combined.set(mac, 32);
+    combined.set(encrypted, 64);
+
+    const b64 = btoa(String.fromCharCode(...combined));
+    const result = '🔒' + b64;
+    document.getElementById('cipher-output').value = result;
+    navigator.clipboard.writeText(result).then(() => showToast('加密成功，已自动复制到剪贴板'));
+  } catch (e) {
+    showToast('加密失败: ' + e.message);
+  }
+}
+
+async function doDecrypt() {
+  const key = document.getElementById('key').value.trim();
+  let cipher = document.getElementById('cipher-text').value.trim();
+  if (!key) return showToast('请先输入密钥');
+  if (!cipher) return showToast('请粘贴加密消息');
+
+  if (cipher.startsWith('🔒')) cipher = cipher.slice(2);
+
+  try {
+    const raw = Uint8Array.from(atob(cipher), c => c.charCodeAt(0));
+    if (raw.length < 65) throw new Error('数据格式错误');
+    const salt = raw.slice(0, 16);
+    const iv = raw.slice(16, 32);
+    const mac = raw.slice(32, 64);
+    const ciphertext = raw.slice(64);
+
+    const { aesKey, hmacKey } = await deriveKeys(key, salt);
+
+    const toMac = new Uint8Array(16 + 16 + ciphertext.length);
+    toMac.set(salt, 0);
+    toMac.set(iv, 16);
+    toMac.set(ciphertext, 32);
+    const valid = await crypto.subtle.verify('HMAC', hmacKey, mac, toMac);
+    if (!valid) throw new Error('密钥错误或数据被篡改');
+
+    const decrypted = await crypto.subtle.decrypt({ name: 'AES-CBC', iv }, aesKey, ciphertext);
+    document.getElementById('plain-output').value = new TextDecoder().decode(decrypted);
+    showToast('解密成功');
+  } catch (e) {
+    showToast('解密失败，请检查密钥是否正确');
+  }
+}
+
+let autoDecryptTimer = null;
+function autoDecrypt() {
+  clearTimeout(autoDecryptTimer);
+  const cipher = document.getElementById('cipher-text').value.trim();
+  if (!cipher) { document.getElementById('plain-output').value = ''; return; }
+  autoDecryptTimer = setTimeout(() => doDecrypt(), 300);
+}
+
+function copyText(id) {
+  const text = document.getElementById(id).value;
+  if (!text) return showToast('没有内容可复制');
+  navigator.clipboard.writeText(text).then(() => showToast('已复制到剪贴板'));
+}
+
+// === Install hint for mobile browsers (not standalone) ===
+if (window.matchMedia('(max-width: 768px)').matches && !window.navigator.standalone && !window.matchMedia('(display-mode: standalone)').matches) {
+  document.getElementById('install-hint').classList.add('show');
+}
+
+// === Service Worker for offline (inline, no extra file needed) ===
+if ('serviceWorker' in navigator) {
+  const swCode = `self.addEventListener('fetch', e => e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))));
+self.addEventListener('install', e => e.waitUntil(caches.open('mixin-v1').then(c => c.add(self.location.href.replace(/sw\\.js.*/, 'encrypt-pwa.html')))));`;
+  const blob = new Blob([swCode], { type: 'application/javascript' });
+  navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
+}
+</script>
+</body>
+</html>

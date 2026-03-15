@@ -1,0 +1,89 @@
+<view class="container">
+  <view class="header">
+    <text class="title">🔐 密信聊天</text>
+    <text class="subtitle">本地加密，消息只有你们看得懂</text>
+  </view>
+
+  <!-- 密钥区域 -->
+  <view class="key-section">
+    <text class="label">共享密钥（和对方约定同一个）</text>
+    <view class="key-row">
+      <input
+        class="key-input"
+        password="{{!showKey}}"
+        value="{{key}}"
+        placeholder="输入你们的密钥..."
+        placeholder-class="placeholder"
+        bindinput="onKeyInput"
+      />
+      <view class="key-btn" bindtap="toggleKey">
+        <text>{{showKey ? '🙈' : '👁'}}</text>
+      </view>
+      <view class="key-btn" bindtap="generateKey">
+        <text>随机</text>
+      </view>
+    </view>
+    <view class="save-row" bindtap="toggleSaveKey">
+      <view class="checkbox {{saveKey ? 'checked' : ''}}">
+        <text wx:if="{{saveKey}}">✓</text>
+      </view>
+      <text class="save-label">记住密钥</text>
+    </view>
+  </view>
+
+  <!-- Tab 切换 -->
+  <view class="tabs">
+    <view class="tab {{mode === 'encrypt' ? 'active' : ''}}" bindtap="switchToEncrypt">加密发送</view>
+    <view class="tab {{mode === 'decrypt' ? 'active' : ''}}" bindtap="switchToDecrypt">解密查看</view>
+  </view>
+
+  <!-- 加密面板 -->
+  <view class="panel" wx:if="{{mode === 'encrypt'}}">
+    <textarea
+      class="input-area"
+      value="{{plainText}}"
+      placeholder="输入要加密的消息..."
+      placeholder-class="placeholder"
+      bindinput="onPlainInput"
+      auto-height
+    />
+    <view class="action-btn btn-encrypt" bindtap="doEncrypt">
+      <text>{{encrypting ? '加密中...' : '加密并复制'}}</text>
+    </view>
+    <view class="result-area" wx:if="{{cipherOutput}}">
+      <textarea
+        class="output-area"
+        value="{{cipherOutput}}"
+        readonly
+        auto-height
+      />
+      <view class="copy-btn" bindtap="copyCipher">复制</view>
+    </view>
+  </view>
+
+  <!-- 解密面板 -->
+  <view class="panel" wx:if="{{mode === 'decrypt'}}">
+    <textarea
+      class="input-area"
+      value="{{cipherText}}"
+      placeholder="粘贴收到的加密消息..."
+      placeholder-class="placeholder"
+      bindinput="onCipherInput"
+      auto-height
+    />
+    <view class="action-btn btn-decrypt" bindtap="doDecrypt">
+      <text>{{decrypting ? '解密中...' : '解密'}}</text>
+    </view>
+    <view class="result-area" wx:if="{{plainOutput}}">
+      <textarea
+        class="output-area output-decrypt"
+        value="{{plainOutput}}"
+        readonly
+        auto-height
+      />
+      <view class="copy-btn" bindtap="copyPlain">复制</view>
+    </view>
+  </view>
+
+  <text class="hint">所有加密解密均在本地完成，不经过任何服务器</text>
+</view>
