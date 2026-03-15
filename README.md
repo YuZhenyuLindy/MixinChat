@@ -27,7 +27,7 @@
 | 版本 | 说明 |
 |------|------|
 | `index.html` | PWA 网页版，支持离线使用和添加到主屏幕 |
-| `encrypt-pwa.html` | PWA 网页版（原始文件） |
+| `encrypt-pwa.html` | PWA 网页版 |
 | `mixin-miniapp/` | 微信小程序版本 |
 
 ## 安全说明
